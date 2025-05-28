@@ -1,0 +1,290 @@
+openapi: 3.0.0
+info:
+  title: Budget Management API
+  version: 1.0.0
+  description: API per la gestione del budget familiare
+
+servers:
+  - url: http://localhost:3001/api
+    description: Server di sviluppo
+  - url: https://consulenzaesupporto.it/api
+    description: Server di produzione
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        type:
+          type: string
+          enum: [income, expense]
+        amount:
+          type: number
+          format: float
+        category:
+          type: string
+        description:
+          type: string
+        date:
+          type: string
+          format: date-time
+        isRecurring:
+          type: boolean
+        recurringPeriod:
+          type: string
+          enum: [weekly, monthly, yearly]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Contract:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        provider:
+          type: string
+        contractNumber:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        amount:
+          type: number
+          format: float
+        frequency:
+          type: string
+        status:
+          type: string
+          enum: [active, expired, cancelled]
+        documentUrl:
+          type: string
+
+    SavingsGoal:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        name:
+          type: string
+        targetAmount:
+          type: number
+          format: float
+        currentAmount:
+          type: number
+          format: float
+        deadline:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [active, completed, cancelled]
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        type:
+          type: string
+        title:
+          type: string
+        message:
+          type: string
+        isRead:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+paths:
+  /health:
+    get:
+      summary: Verifica lo stato del server
+      responses:
+        '200':
+          description: Server operativo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /transactions:
+    get:
+      security:
+        - BearerAuth: []
+      summary: Lista tutte le transazioni
+      parameters:
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: category
+          schema:
+            type: string
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [income, expense]
+      responses:
+        '200':
+          description: Lista delle transazioni
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+
+    post:
+      security:
+        - BearerAuth: []
+      summary: Crea una nuova transazione
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transaction'
+      responses:
+        '200':
+          description: Transazione creata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+
+  /contracts:
+    get:
+      security:
+        - BearerAuth: []
+      summary: Lista tutti i contratti
+      responses:
+        '200':
+          description: Lista dei contratti
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Contract'
+
+    post:
+      security:
+        - BearerAuth: []
+      summary: Crea un nuovo contratto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Contract'
+      responses:
+        '200':
+          description: Contratto creato
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contract'
+
+  /savings-goals:
+    get:
+      security:
+        - BearerAuth: []
+      summary: Lista tutti gli obiettivi di risparmio
+      responses:
+        '200':
+          description: Lista degli obiettivi
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SavingsGoal'
+
+    post:
+      security:
+        - BearerAuth: []
+      summary: Crea un nuovo obiettivo di risparmio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavingsGoal'
+      responses:
+        '200':
+          description: Obiettivo creato
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavingsGoal'
+
+  /notifications:
+    get:
+      security:
+        - BearerAuth: []
+      summary: Lista tutte le notifiche
+      responses:
+        '200':
+          description: Lista delle notifiche
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+
+    post:
+      security:
+        - BearerAuth: []
+      summary: Crea una nuova notifica
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notification'
+      responses:
+        '200':
+          description: Notifica creata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
