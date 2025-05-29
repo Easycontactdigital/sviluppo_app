@@ -10,7 +10,7 @@ import notificationRoutes from './routes/notification.routes';
 dotenv.config();
 
 const app: Express = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
